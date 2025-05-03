@@ -2,7 +2,7 @@ import base64, json, os, msvcrt
 
 class nmapFindings:
     _values: list = []
-    _loadedId: int = 0
+    _loadedId: int = -1
 
     def __init__(self) -> None:
         self._values = []
@@ -29,10 +29,15 @@ class nmapFindings:
         with open("config.nmapParse", "r") as f:
             _id = len(f.readlines())
 
-        with open("config.nmapParse", "a") as f:
-            f.write(f"[{_id},{_sessionName}]: ")
-            f.write(data.decode('ascii'))
-            f.write("\n")
+        if self._loadedId == -1:
+            with open("config.nmapParse", "a") as f:
+                f.write(f"[{_id},{_sessionName}]: ")
+                f.write(data.decode('ascii'))
+                f.write("\n")
+
+        else:
+            # Find a way to overwrite a specific line in the config file, then set the id back to -1
+            pass
 
     def _import(self) -> None:
         if not "config.nmapParse" in os.listdir():
@@ -78,6 +83,8 @@ class nmapFindings:
                     if not found:
                         print("Session name does not exist")
                         return
+                    
+            self._loadedId = _id
 
             entries = lines[_id].split(":")[1] # get the base64 part of the line
             entries = json.loads(base64.b64decode(entries.encode("ascii"))) # Convert back into json
@@ -158,6 +165,7 @@ class nmapFindings:
 
     def _clear(self) -> None:
         self._values = []
+        self._loadedId = -1
 
     def showAll(self) -> None:
         for value in self._values:

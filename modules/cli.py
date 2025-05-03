@@ -16,7 +16,7 @@ class cli:
                 pass
 
             else:
-                match command.split()[0]:
+                match command.split()[0].lower():
                     case ("help" | "h" | "?"):
                         print(r"  _____             __      ___                        ")
                         print(r" / ____|            \ \    / (_)                       ")
@@ -85,6 +85,9 @@ class cli:
 
                                 case ("ip" | "ips"):
                                     self._findings.showIps()
+
+                                case _:
+                                    print(f"{command.split()[1]} is not a subcommand of show")
                         
                         else:
                             self._findings.showAll()

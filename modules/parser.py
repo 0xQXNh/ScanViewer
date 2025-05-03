@@ -9,6 +9,9 @@ class parser:
     def openFile(self, path: str) -> list:
         output: list = []
 
+        if path.split(".")[-1] != "nmap":
+            print("[Error] Wrong file extension. Please use a .nmap file.")
+
         try:
             with open(path, "r") as f:
                 for line in f.readlines():
