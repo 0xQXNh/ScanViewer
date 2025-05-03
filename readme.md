@@ -2,7 +2,7 @@
 
 .nmap file parser for easier reading of information
 
-# Usage
+# Commands
 
 - `load {filename}` To load an .nmap file into the session
 - `show {all|ports|ips}` To display the contents of the .nmap file(s) in the session
