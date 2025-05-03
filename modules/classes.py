@@ -23,6 +23,9 @@ class nmapFindings:
 
         data = base64.b64encode(json.dumps(_output).encode('ascii'))
 
+        if not "config.nmapParse" in os.listdir():
+            open("config.nmapParse", "w")
+
         with open("config.nmapParse", "r") as f:
             _id = len(f.readlines())
 
@@ -32,6 +35,10 @@ class nmapFindings:
             f.write("\n")
 
     def _import(self) -> None:
+        if not "config.nmapParse" in os.listdir():
+            print("[ERROR] No config file exists. A session must be exported first")
+            return
+
         with open("config.nmapParse", "r") as f:
             lines = f.readlines()
             _id = len(lines) - 1
