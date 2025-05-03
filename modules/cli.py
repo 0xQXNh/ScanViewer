@@ -42,6 +42,7 @@ class cli:
                         print('\t"all" - Displays all')
                         print('\t"ports", "port" - Displays all ports')
                         print('\t"ip", "ips" - Displays all ips')
+                        print('"no-comments" - Toggles comments on or off for when using the show command')
                         print('"search" - Search through findings in session by ip')
 
                     case ("clear" | "cls"):
@@ -91,6 +92,10 @@ class cli:
                         
                         else:
                             self._findings.showAll()
+
+                    case ("no-comments"):
+                        self._findings._comments = not self._findings._comments
+                        print(f"Comments are {'on' if self._findings._comments else 'off'}")
 
                     case ("search"):
                         self._findings.search()

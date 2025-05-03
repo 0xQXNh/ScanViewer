@@ -1,3 +1,4 @@
 todo.md
 *.nmapParse
 /files
+/modules/__pycache__

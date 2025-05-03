@@ -3,12 +3,25 @@ import base64, json, os, msvcrt
 class nmapFindings:
     _values: list = []
     _loadedId: int = -1
+    _comments: bool = True
 
     def __init__(self) -> None:
         self._values = []
 
     def _export(self, _sessionName: str = "_") -> None:
         _output = []
+
+        if len(self._values) == 0:
+            _inp = input(f"Session has no entries. Write anyway? [y/N] >")
+
+            if _inp.lower() in ["n", ""]:
+                return
+
+            elif _inp.lower() == "y":
+                pass
+
+            else:
+                print("Invalid argument.")
 
         for value in self._values:
             data = {}
@@ -37,7 +50,10 @@ class nmapFindings:
 
         else:
             # Find a way to overwrite a specific line in the config file, then set the id back to -1
+            print(f"Appending to previously written session: {self._loadedId}")
             pass
+
+        print(f"Written {_id}: {_sessionName} to config")
 
     def _import(self) -> None:
         if not "config.nmapParse" in os.listdir():
@@ -55,11 +71,10 @@ class nmapFindings:
                 sessions[data[0]] = data[1]
 
             if _id >= 1:
-                print("Select by ID or Name:")
                 for sessionId, sessionName in sessions.items():
                     print(f"{sessionId}: {sessionName}")
 
-                _id = str(input(">"))
+                _id = str(input("[Select by ID or Name] >"))
 
                 if _id.isdigit():
                     _id = int(_id)
@@ -84,10 +99,23 @@ class nmapFindings:
                         print("Session name does not exist")
                         return
                     
+            if len(lines) == 0:
+                print("No saved sessions to load")
+                return
+
+            try:
+                entries = lines[_id].split(":")[1] # get the base64 part of the line
+                entries = json.loads(base64.b64decode(entries.encode("ascii"))) # Convert back into json
+
+            except:
+                print(f"[Error] Failed to decode contents of session. Maybe the config file is corrupt.")
+                return
+
             self._loadedId = _id
 
-            entries = lines[_id].split(":")[1] # get the base64 part of the line
-            entries = json.loads(base64.b64decode(entries.encode("ascii"))) # Convert back into json
+            _name = lines[_id].split(":")[0].split(",")[-1][:-1]
+
+            print(f"Loaded {_id}{": '" + _name + "'" if _name != "_" else ""} from config")
 
             for entry in entries:
                 _finding = finding()
@@ -168,15 +196,22 @@ class nmapFindings:
         self._loadedId = -1
 
     def showAll(self) -> None:
+        if len(self._values) == 0:
+            print("No values to display")
+
         for value in self._values:
             for entry in [value._ip, value._port, value._service, value._description]:
                 print(entry, end=" ")
             print()
 
-            for entry in value._comments:
-                print(entry)
+            if self._comments:
+                for entry in value._comments:
+                    print(entry)
 
     def showPorts(self) -> None:
+        if len(self._values) == 0:
+            print("No values to display")
+
         for value in range(len(self._values)):
             if value != 0 and self._values[value-1]._ip != self._values[value]._ip:
                 print(f"{self._values[value]._ip}: ")
@@ -186,6 +221,9 @@ class nmapFindings:
             print(f"\t{self._values[value]._port}")
 
     def showIps(self) -> None:
+        if len(self._values) == 0:
+            print("No values to display")
+
         for entry in self._values:
             print(entry._ip)
 

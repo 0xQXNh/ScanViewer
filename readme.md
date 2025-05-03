@@ -6,6 +6,7 @@
 
 - `load {filename}` To load an .nmap file into the session
 - `show {all|ports|ips}` To display the contents of the .nmap file(s) in the session
+- `no-comments` Toggles the display of comments when using the show command
 - `export` To save the current session to be imported later
 - `import` To load a saved session
 ---
