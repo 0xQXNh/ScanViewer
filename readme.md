@@ -13,9 +13,11 @@
 `import` To load a saved session
 
 
+
 `delete` Lists all saved sessions for the selection of one to delete
 
 `new` Empties the current session to allow new data
+
 
 
 `help` Displays these commands and more in the script
