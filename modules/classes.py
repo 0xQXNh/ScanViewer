@@ -36,31 +36,57 @@ class nmapFindings:
 
         data = base64.b64encode(json.dumps(_output).encode('ascii'))
 
-        if not "config.nmapParse" in os.listdir():
-            open("config.nmapParse", "w")
+        if not "config.svs" in os.listdir():
+            open("config.svs", "w")
 
-        with open("config.nmapParse", "r") as f:
-            _id = len(f.readlines())
+        lines = []
+
+        with open("config.svs", "r") as f:
+            allNames = []
+
+            lines = f.readlines()
+
+            for line in lines:
+                allNames.append(line.split(':')[0].split(',')[-1][:-1])
+
+            if self._loadedId == -1:
+                _id = len(lines)
+            else:
+                _id = self._loadedId
+
+        if _sessionName in allNames and _sessionName != "_":
+            print(f"Session name already exists. Not saved")
+            return      
 
         if self._loadedId == -1:
-            with open("config.nmapParse", "a") as f:
+            with open("config.svs", "a") as f:
                 f.write(f"[{_id},{_sessionName}]: ")
                 f.write(data.decode('ascii'))
                 f.write("\n")
+            
+            self._loadedId = _id
 
         else:
-            # Find a way to overwrite a specific line in the config file, then set the id back to -1
+            with open("config.svs", "w") as f:
+                for line in range(len(lines)):
+                    if line == self._loadedId:
+                        f.write(f"[{_id},{_sessionName}]: ")
+                        f.write(data.decode('ascii'))
+                        f.write("\n")
+                    else:
+                        f.write(lines[line])
+                
             print(f"Appending to previously written session: {self._loadedId}")
             pass
 
         print(f"Written {_id}: {_sessionName} to config")
 
     def _import(self) -> None:
-        if not "config.nmapParse" in os.listdir():
+        if not "config.svs" in os.listdir():
             print("[ERROR] No config file exists. A session must be exported first")
             return
 
-        with open("config.nmapParse", "r") as f:
+        with open("config.svs", "r") as f:
             lines = f.readlines()
             _id = len(lines) - 1
 
@@ -132,7 +158,8 @@ class nmapFindings:
 
     def _delete(self) -> None:
         lines = []
-        with open("config.nmapParse", "r") as f:
+
+        with open("config.svs", "r") as f:
             lines = f.readlines()
             _id = len(lines) - 1
 
@@ -142,11 +169,10 @@ class nmapFindings:
                 data = list(str(line.split(":")[0])[1:-1].split(","))
                 sessions[data[0]] = data[1]
 
-            print("Select by ID or Name:")
             for sessionId, sessionName in sessions.items():
                 print(f"{sessionId}: {sessionName}")
 
-            _id = str(input(">"))
+            _id = str(input("[Select by ID or name] >"))
 
             if _id.isdigit():
                 _id = int(_id)
@@ -170,8 +196,14 @@ class nmapFindings:
                 if not found:
                     print("Session name does not exist")
                     return
+                
+        if _id == self._loadedId:
+            self._loadedId = -1
+
+        if _id < self._loadedId:
+            self._loadedId -= 1
     
-        with open("config.nmapParse", "w+") as f:
+        with open("config.svs", "w+") as f:
             pos: int = 0
             currentId: int = 0
 
@@ -188,6 +220,8 @@ class nmapFindings:
 
                     f.write(line)
                     f.write("\n")
+
+                    currentId += 1
 
                 pos += 1
 
