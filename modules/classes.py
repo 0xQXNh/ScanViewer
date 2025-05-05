@@ -1,4 +1,16 @@
-import base64, json, os, msvcrt
+import base64, json, os
+
+from sys import platform
+
+if platform == "win32":
+    import msvcrt
+
+else:
+    try:
+        import getch as msvcrt
+
+    except:
+        print("getch not installed")
 
 class nmapFindings:
     _values: list = []
