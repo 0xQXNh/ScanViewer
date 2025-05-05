@@ -4,13 +4,10 @@ from sys import platform
 
 if platform == "win32":
     import msvcrt
-
+    CLEAR_COMMAND = "cls"
 else:
-    try:
-        import getch as msvcrt
-
-    except:
-        print("getch not installed")
+    import getch as msvcrt
+    CLEAR_COMMAND = "clear"
 
 class nmapFindings:
     _values: list = []
@@ -287,16 +284,22 @@ class nmapFindings:
             else:
                 ipMap[self._values[pos]._ip].append(pos)
 
-        os.system('cls')
+        os.system(CLEAR_COMMAND)
         while _searching:
-            char = char.decode('ascii')
+            try:
+                char = char.decode('ascii')
+
+            except:
+                pass
+
+            print(repr(char))
 
             match char:
-                case ("\x03" | "\r"):
+                case ("\x03" | "\r" | "\n"):
                     _searching = False
                     break
 
-                case "\x08":
+                case ("\x08" | "\x7f"):
                     searchTerm = searchTerm[:-1]
 
                 case _:
@@ -312,7 +315,7 @@ class nmapFindings:
             print(f"[Search by ip] > {searchTerm}")
 
             char = msvcrt.getch()
-            os.system('cls')
+            os.system(CLEAR_COMMAND)
 
 class finding:
     _id: int = 0
