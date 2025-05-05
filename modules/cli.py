@@ -60,7 +60,7 @@ class cli:
                             self._findings = self._parser.parseFile(self._findings, file)
                             
                         else:
-                            print("[Error] Please specify a file location")
+                            print("Please specify a file location")
 
                     case ("export"):
                         if len(command.split()) > 1:
