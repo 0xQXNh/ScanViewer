@@ -6,11 +6,7 @@ if platform == "win32":
     import msvcrt
 
 else:
-    try:
-        import getch as msvcrt
-
-    except:
-        print("getch not installed")
+    import getch as msvcrt
 
 class nmapFindings:
     _values: list = []
@@ -19,6 +15,14 @@ class nmapFindings:
 
     def __init__(self) -> None:
         self._values = []
+
+    def _getInfo(self) -> str:
+        ips: dict = {}
+        for ip in self._values:
+            if not ip in ips.keys():
+                ips[ip] = {}
+
+        return str(len(ips.keys()))
 
     def _export(self, _sessionName: str = "_") -> None:
         _output = []

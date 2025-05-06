@@ -58,6 +58,7 @@ class cli:
                         if len(command.split()) > 1:
                             file = self._parser.openFile(command.split()[1])
                             self._findings = self._parser.parseFile(self._findings, file)
+                            print(f"Loaded {self._findings._getInfo()} ips")
                             
                         else:
                             print("[Error] Please specify a file location")
@@ -71,6 +72,7 @@ class cli:
 
                     case ("import"):
                         self._findings._import()
+                        print(f"Loaded {self._findings._getInfo()} ips")
 
                     case ("delete"):
                         self._findings._delete()
