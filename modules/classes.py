@@ -1,4 +1,4 @@
-import base64, json, os
+import base64, json, os, regex
 
 from sys import platform
 
@@ -120,14 +120,14 @@ class nmapFindings:
 
                 _id = str(input("[Select by ID or Name] >"))
 
-                if _id.isdigit():
+                if regex.findall("^[0-9]+$", _id):
                     _id = int(_id)
 
                     if _id >= len(lines):
                         print("Value must be in the list")
                         return
                 
-                elif _id.isalpha():
+                else:
                     _id = str(_id)
                     found = False
 
