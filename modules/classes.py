@@ -4,9 +4,11 @@ from sys import platform
 
 if platform == "win32":
     import msvcrt
+    CLEAR_COMMAND = "cls"
 
 else:
     import getch as msvcrt
+    CLEAR_COMMAND = "clear"
 
 class nmapFindings:
     _values: list = []
@@ -99,7 +101,7 @@ class nmapFindings:
 
     def _import(self) -> None:
         if not "config.svs" in os.listdir():
-            print("[ERROR] No config file exists. A session must be exported first")
+            print("No config file exists. A session must be exported first")
             return
 
         with open("config.svs", "r") as f:
@@ -150,7 +152,7 @@ class nmapFindings:
                 entries = json.loads(base64.b64decode(entries.encode("ascii"))) # Convert back into json
 
             except:
-                print(f"[Error] Failed to decode contents of session. Maybe the config file is corrupt.")
+                print(f"Failed to decode contents of session. Maybe the config file is corrupt.")
                 return
 
             self._loadedId = _id
@@ -291,16 +293,22 @@ class nmapFindings:
             else:
                 ipMap[self._values[pos]._ip].append(pos)
 
-        os.system('cls')
+        os.system(CLEAR_COMMAND)
         while _searching:
-            char = char.decode('ascii')
+            try:
+                char = char.decode('ascii')
+
+            except:
+                pass
+
+            print(repr(char))
 
             match char:
-                case ("\x03" | "\r"):
+                case ("\x03" | "\r" | "\n"):
                     _searching = False
                     break
 
-                case "\x08":
+                case ("\x08" | "\x7f"):
                     searchTerm = searchTerm[:-1]
 
                 case _:
@@ -316,7 +324,7 @@ class nmapFindings:
             print(f"[Search by ip] > {searchTerm}")
 
             char = msvcrt.getch()
-            os.system('cls')
+            os.system(CLEAR_COMMAND)
 
 class finding:
     _id: int = 0

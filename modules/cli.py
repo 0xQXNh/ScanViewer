@@ -61,7 +61,7 @@ class cli:
                             print(f"Loaded {self._findings._getInfo()} ips")
                             
                         else:
-                            print("[Error] Please specify a file location")
+                            print("Please specify a file location")
 
                     case ("export"):
                         if len(command.split()) > 1:

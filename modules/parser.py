@@ -10,7 +10,7 @@ class parser:
         output: list = []
 
         if path.split(".")[-1] != "nmap":
-            print("[Error] Wrong file extension. Please use a .nmap file.")
+            print("Wrong file extension. Please use a .nmap file.")
 
         try:
             with open(path, "r") as f:
@@ -18,7 +18,7 @@ class parser:
                     output.append(line.rstrip())
 
         except:
-            print(f"[Error] Unable to open file: {path}")
+            print(f"Unable to open file: {path}")
 
         return output
 
