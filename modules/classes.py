@@ -18,7 +18,7 @@ class nmapFindings:
     def __init__(self) -> None:
         self._values = []
 
-    def _getInfo(self) -> str:
+    def _getLoadedIps(self) -> str:
         ips: dict = {}
         for ip in self._values:
             if not ip in ips.keys():

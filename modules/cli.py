@@ -72,7 +72,7 @@ class cli:
 
                     case ("import"):
                         self._findings._import()
-                        print(f"Loaded {self._findings._getInfo()} ips")
+                        print(f"Loaded {self._findings._getLoadedIps()} ips")
 
                     case ("delete"):
                         self._findings._delete()
