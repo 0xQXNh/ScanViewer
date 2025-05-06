@@ -52,7 +52,7 @@ class parser:
         if extension == "nmap":
             _finding = finding()
 
-            locs = self.getPortLocs(_input)
+            locs = self._getPortLocs(_input)
             posCount = 0
 
             for _line in range(len(_input)):
@@ -67,7 +67,7 @@ class parser:
                 if regex.match("Nmap scan report for", line):
                     ip = regex.search("([0-9]{1,3}\\.){3}([0-9]{1,3})", line).captures()[0]
 
-                    nextGap = self.getNextGap(_input, _line)
+                    nextGap = self._getNextGap(_input, _line)
 
                     entries = False
                     for entry in _input[_line:nextGap]:
@@ -79,7 +79,7 @@ class parser:
 
                 elif regex.match("[0-9]{1,5}\\/", line):
                     line = line.split(" ")
-                    line = self.formatPort(line)
+                    line = self._formatPort(line)
                     
                     Port = line[0]
                     Service = line[2]
