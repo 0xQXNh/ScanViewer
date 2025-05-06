@@ -1,10 +1,10 @@
-from modules.classes import nmapFindings
+from modules.allFindings import allFindings
 from modules.parser import parser
 
 import os
 
 class cli:
-    def __init__(self, data: nmapFindings, parser: parser):
+    def __init__(self, data: allFindings, parser: parser):
         self._findings = data
         self._parser = parser
 
@@ -56,9 +56,8 @@ class cli:
 
                     case ("load"):
                         if len(command.split()) > 1:
-                            file = self._parser.openFile(command.split()[1])
-                            self._findings = self._parser.parseFile(self._findings, file)
-                            print(f"Loaded {self._findings._getInfo()} ips")
+                            self._findings = self._parser.parseFile(self._findings, command.split()[1])
+                            print(f"Loaded {self._findings._getLoadedIps()} ips")
                             
                         else:
                             print("Please specify a file location")

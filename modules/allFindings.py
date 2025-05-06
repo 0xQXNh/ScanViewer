@@ -1,5 +1,6 @@
 import base64, json, os, regex
 
+from modules.finding import finding
 from sys import platform
 
 if platform == "win32":
@@ -10,7 +11,7 @@ else:
     import getch as msvcrt
     CLEAR_COMMAND = "clear"
 
-class nmapFindings:
+class allFindings:
     _values: list = []
     _loadedId: int = -1
     _comments: bool = True
@@ -272,12 +273,17 @@ class nmapFindings:
 
             print(f"\t{self._values[value]._port}")
 
-    def showIps(self) -> None:
+    def showIps(self) -> None: #de dupe output list
         if len(self._values) == 0:
             print("No values to display")
 
+        ips = {}
         for entry in self._values:
-            print(entry._ip)
+            if not entry._ip in ips:
+                ips[entry._ip] = {}
+
+        for ip in ips.keys():
+            print(ip)
 
     def search(self) -> None:
         _searching: bool = True
@@ -325,18 +331,3 @@ class nmapFindings:
 
             char = msvcrt.getch()
             os.system(CLEAR_COMMAND)
-
-class finding:
-    _id: int = 0
-    _ip: str = ""
-    _port: str = ""
-    _service: str = ""
-    _description: str = ""
-    _comments: list = []
-
-    def __init__(self):
-        self._ip = ""
-        self._port = ""
-        self._service = ""
-        self._description = ""
-        self._comments = []
