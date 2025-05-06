@@ -5,6 +5,8 @@
 
 - [ ] Add instructions to readme. Use the `help` command for now.
 
+- [ ] Prompt export on exit? 
+- [ ] Track session name so when it us exported again the name is not overwritten to "_" and uses the previous session name unless otherwise specified
 - [x] Have Import/Export output a message saying they have done something
 - [x] lower input so mixed capitals work
 - [x] Add Message for when show subcommand does not exist
