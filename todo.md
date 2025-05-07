@@ -17,6 +17,6 @@
 
 # Maybe todo
 
-- [ ] Parse .nessus content too to also allow for the use of the commands from this script with nessus output
+- [x] Parse .nessus content too to also allow for the use of the commands from this script with nessus output
 - [x] Save contents as a config file of some kind to allow merger of nessus and nmap scans to allow this tool to keep track of all scans done 
 - [x] Include some kind of command line utility to allow for multiple commands in the same session
