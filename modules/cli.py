@@ -1,6 +1,14 @@
 from modules.allFindings import allFindings
 from modules.parser import parser
 
+from sys import platform
+
+if platform == "win32":
+    CLEAR_COMMAND = "cls"
+
+else:
+    CLEAR_COMMAND = "clear"
+
 import os
 
 class cli:
@@ -46,7 +54,7 @@ class cli:
                         print('"search" - Search through findings in session by ip')
 
                     case ("clear" | "cls"):
-                        os.system("cls")
+                        os.system(CLEAR_COMMAND)
 
                     case ("exit" | "quit"):
                         exit()
