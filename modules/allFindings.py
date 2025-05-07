@@ -14,6 +14,7 @@ else:
 class allFindings:
     _values: list = []
     _loadedId: int = -1
+    _loadedSessionName: str = "_"
     _comments: bool = True
 
     def __init__(self) -> None:
@@ -76,6 +77,9 @@ class allFindings:
         if _sessionName in allNames and _sessionName != "_":
             print(f"Session name already exists. Not saved")
             return      
+        
+        if _sessionName == "_" and self._loadedSessionName != "_":
+            _sessionName = self._loadedSessionName
 
         if self._loadedId == -1:
             with open("config.svs", "a") as f:
@@ -134,6 +138,7 @@ class allFindings:
 
                     if _id == "_":
                         print("Session name not valid")
+                        return
 
                     for sessionId, sessionName in sessions.items():
                         if sessionName == _id:
@@ -159,6 +164,7 @@ class allFindings:
             self._loadedId = _id
 
             _name = lines[_id].split(":")[0].split(",")[-1][:-1]
+            self._loadedSessionName = _name
 
             print(f"Loaded {_id}{": '" + _name + "'" if _name != "_" else ""} from config")
 
@@ -247,6 +253,7 @@ class allFindings:
     def _clear(self) -> None:
         self._values = []
         self._loadedId = -1
+        self._loadedSessionName = "_"
 
     def _orderFindings(self) -> None:
         self._values = sorted(self._values, key=operator.attrgetter('_port'))
