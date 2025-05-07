@@ -58,6 +58,7 @@ class cli:
                         if len(command.split()) > 1:
                             self._findings = self._parser.parseFile(self._findings, command.split()[1])
                             print(f"Loaded {self._findings._getLoadedIps()} ips")
+                            self._findings._orderFindings()
                             
                         else:
                             print("Please specify a file location")

@@ -1,4 +1,4 @@
-import base64, json, os, regex
+import base64, json, os, regex, operator
 
 from modules.finding import finding
 from sys import platform
@@ -166,7 +166,7 @@ class allFindings:
                 _finding = finding()
                 _finding._id = entry['id']
                 _finding._ip = entry['ip']
-                _finding._port = entry['port']
+                _finding.setPort(entry['port'])
                 _finding._service = entry['service']
                 _finding._description = entry['description']
                     
@@ -248,21 +248,32 @@ class allFindings:
         self._values = []
         self._loadedId = -1
 
+    def _orderFindings(self) -> None:
+        self._values = sorted(self._values, key=operator.attrgetter('_port'))
+        self._values = sorted(self._values, key=operator.attrgetter('_ip'))
+
     def showAll(self) -> None:
         if len(self._values) == 0:
             print("No values to display")
 
+        previousIp = ""
         for value in self._values:
-            for entry in [value._ip, value._port, value._service, value._protocol, value._description]:
-                print(entry, end=" ")
-            print()
+            if previousIp != value._ip:
+                print(f"{value._ip}")
+                previousIp = value._ip
+
+            print(f"\t{value._port if value._port != -1 else ''}{'/' + value._protocol if value._protocol != '' else ''} {value._service if value._service != '' else ''}")
+            if value._description != "":
+                print(f"\t{value._description}")
 
             if self._comments:
                 if type(value._comments) is str:
-                    print(value._comments)
+                    print(f"\t{value._comments}")
                 else:
                     for entry in value._comments:
-                        print(entry)
+                        print(f"\t{entry}")
+
+            print()
 
     def showPorts(self) -> None:
         if len(self._values) == 0:
@@ -276,7 +287,7 @@ class allFindings:
 
             print(f"\t{self._values[value]._port}")
 
-    def showIps(self) -> None: #de dupe output list
+    def showIps(self) -> None:
         if len(self._values) == 0:
             print("No values to display")
 

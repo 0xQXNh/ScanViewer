@@ -91,7 +91,7 @@ class parser:
                     Description = ' '.join(line[3:])
                     
                     _finding._ip = ip
-                    _finding._port = Port
+                    _finding.setPort(Port)
                     _finding._service = Service
                     _finding._protocol = Protocol
                     _finding._description = Description
@@ -107,7 +107,7 @@ class parser:
                 _finding = finding()
 
                 _finding._ip = line[0]
-                _finding._port = line[1]
+                _finding.setPort(line[1])
 
                 _findings._values.append(_finding)
 
@@ -132,9 +132,9 @@ class parser:
                         _finding = finding()
 
                         _finding._ip = ip
-                        _finding._service = data['svc_name']
+                        _finding._service = data['svc_name'] if data['svc_name'] != "unknown" else ""
                         _finding._protocol = data['protocol']
-                        _finding._port = data['port']
+                        _finding.setPort(data['port'])
                         _finding._comments = reportItem.find("plugin_output").text
 
                         _findings._values.append(_finding)
