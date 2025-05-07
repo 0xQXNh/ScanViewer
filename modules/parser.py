@@ -1,4 +1,5 @@
 import regex
+import xml.etree.ElementTree as ET
 
 from modules.allFindings import allFindings
 from modules.finding import finding
@@ -14,6 +15,9 @@ class parser:
             print("Wrong file extension. Please use a .nmap file.")
 
         extension = path.split(".")[-1]
+
+        if extension == "nessus":
+            return ([], extension)
 
         try:
             with open(path, "r") as f:
@@ -81,13 +85,15 @@ class parser:
                     line = line.split(" ")
                     line = self._formatPort(line)
                     
-                    Port = line[0]
+                    Port = line[0].split("/")[0]
+                    Protocol = line[0].split("/")[1]
                     Service = line[2]
                     Description = ' '.join(line[3:])
                     
                     _finding._ip = ip
                     _finding._port = Port
                     _finding._service = Service
+                    _finding._protocol = Protocol
                     _finding._description = Description
 
                 else:
@@ -104,5 +110,33 @@ class parser:
                 _finding._port = line[1]
 
                 _findings._values.append(_finding)
+
+        elif extension == "nessus":
+            try:
+                tree = ET.parse(path)
+
+            except:
+                print("Failed to parse file")
+                return _findings
+
+            report = tree.find("Report")
+            reportHosts = report.findall("ReportHost")
+
+            for reportHost in reportHosts:
+                ip = reportHost.attrib['name']
+                reportItems = reportHost.findall("ReportItem")
+
+                for reportItem in reportItems:
+                    if reportItem.attrib['pluginFamily'] == "Port scanners":
+                        data = reportItem.attrib
+                        _finding = finding()
+
+                        _finding._ip = ip
+                        _finding._service = data['svc_name']
+                        _finding._protocol = data['protocol']
+                        _finding._port = data['port']
+                        _finding._comments = reportItem.find("plugin_output").text
+
+                        _findings._values.append(_finding)
 
         return _findings

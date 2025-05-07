@@ -253,13 +253,16 @@ class allFindings:
             print("No values to display")
 
         for value in self._values:
-            for entry in [value._ip, value._port, value._service, value._description]:
+            for entry in [value._ip, value._port, value._service, value._protocol, value._description]:
                 print(entry, end=" ")
             print()
 
             if self._comments:
-                for entry in value._comments:
-                    print(entry)
+                if type(value._comments) is str:
+                    print(value._comments)
+                else:
+                    for entry in value._comments:
+                        print(entry)
 
     def showPorts(self) -> None:
         if len(self._values) == 0:
