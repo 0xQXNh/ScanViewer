@@ -1,9 +1,12 @@
 # To do
 
 - Handle duplicates in the findings. Figure out how to decide which to keep (The one with more info or the one that is newer?)
+    - Add a datetime element in the finding class
+    - Add a file element in the finding class < to keep track of where the finding was added from 
 - Parse CIDR range input so only those IPs in scope are displayed
 - Add instructions to readme. Use the `help` command for now.
 - Add a config file to keep track of settings like 'no-comments' and last open session
+- Add support for nmaps gnmap and xml outputs
 
 # Done
 
