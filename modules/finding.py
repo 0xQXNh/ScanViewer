@@ -1,3 +1,5 @@
+import datetime
+
 class finding:
     _id: int = 0
     _ip: str = ""
@@ -7,6 +9,9 @@ class finding:
     _description: str = ""
     _comments: list = []
 
+    _datetime: datetime.datetime = None
+    _file: str = ""
+
     def __init__(self):
         self._ip = ""
         self._port = -1
@@ -14,6 +19,9 @@ class finding:
         self._protocol = ""
         self._description = ""
         self._comments = []
+
+        self._datetime = datetime.datetime.now()
+        self._filename = ""
 
     def setPort(self, port) -> None:
         self._port = int(port)

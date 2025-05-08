@@ -11,7 +11,7 @@ class parser:
     def _openFile(self, path: str) -> tuple[list, str]:
         output: list = []
 
-        if not path.split(".")[-1] in ["nmap", "nessus", "naabu"]:
+        if not path.split(".")[-1] in ["nmap", "nessus", "naabu", "gnmap", "xml"]:
             print("Wrong file extension. Please use a .nmap file.")
 
         extension = path.split(".")[-1]
@@ -51,6 +51,16 @@ class parser:
                 return entry
 
     def parseFile(self, _findings: allFindings, path: str) -> allFindings:
+        if "/" in path:
+            filename = path.split("/")[-1]
+
+        elif "\\" in path:
+            path = path.replace("\\", "/")
+            filename = path.split("/")[-1]
+
+        else:
+            filename = path
+
         _input, extension = self._openFile(path)
 
         if extension == "nmap":
@@ -96,11 +106,13 @@ class parser:
                     _finding._protocol = Protocol
                     _finding._description = Description
 
+                    _finding._filename = filename
+
                 else:
                     if line.startswith("|"):
                         _finding._comments.append(line)
 
-        elif extension == "naabu": #Assuming naabu port scan output
+        elif extension == "naabu":
             for line in _input:
                 line = line.split(":")
                 
@@ -109,7 +121,46 @@ class parser:
                 _finding._ip = line[0]
                 _finding.setPort(line[1])
 
+                _finding._filename = filename
+
                 _findings._values.append(_finding)
+
+        elif extension == "gnmap":
+            for line in _input:
+                portsIndex: int = -1
+                if "Host" in line and "Ports: " in line:
+                    ip = line.split(" ")[1].rstrip()
+                    line = line.split("Ports: ")[-1]
+
+                    line = line.split("/,")
+                    if "\t" in line[-1]:
+                        line = line[:-1] + line[-1].split("\t")[:-1]
+
+                    for entry in line:
+                        _finding = finding()
+                        _finding._ip = ip
+                        _finding._filename = filename
+                        dataPos: int = 0
+                        for data in entry.split("/"):
+                            match dataPos:
+                                case 0:
+                                    _finding._port = int(data)
+
+                                case 2:
+                                    _finding._protocol = data
+
+                                case 4:
+                                    _finding._service = data
+
+                                case 6:
+                                    _finding._description = data
+
+                            dataPos += 1
+
+                        _findings._values.append(_finding)
+                                    
+        elif extension == "xml": # I don't want to do this tbh
+            pass
 
         elif extension == "nessus":
             try:
@@ -136,6 +187,8 @@ class parser:
                         _finding._protocol = data['protocol']
                         _finding.setPort(data['port'])
                         _finding._comments = reportItem.find("plugin_output").text
+
+                        _finding._filename = filename
 
                         _findings._values.append(_finding)
 

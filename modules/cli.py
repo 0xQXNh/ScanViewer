@@ -107,6 +107,10 @@ class cli:
                         self._findings._comments = not self._findings._comments
                         print(f"Comments are {'on' if self._findings._comments else 'off'}")
 
+                    case ("debug"):
+                        self._findings._debug = not self._findings._debug
+                        print(f"Debug is {'on' if self._findings._debug else 'off'}")
+
                     case ("search"):
                         self._findings.search()
 

@@ -17,6 +17,8 @@ class allFindings:
     _loadedSessionName: str = "_"
     _comments: bool = True
 
+    _debug: bool = False
+
     def __init__(self) -> None:
         self._values = []
 
@@ -51,6 +53,8 @@ class allFindings:
             data['service'] = value._service
             data['description'] = value._description
             data['comments'] = value._comments
+            data['datetime'] = str(value._datetime)
+            data['filename'] = value._filename
 
             _output.append(data)
 
@@ -175,6 +179,8 @@ class allFindings:
                 _finding.setPort(entry['port'])
                 _finding._service = entry['service']
                 _finding._description = entry['description']
+                _finding._datetime = entry['datetime']
+                _finding._filename = entry['filename']
                     
                 for section in entry['comments']:
                     _finding._comments.append(section)
@@ -279,6 +285,9 @@ class allFindings:
                 else:
                     for entry in value._comments:
                         print(f"\t{entry}")
+
+            if self._debug:
+                print("\t" + str(value._datetime), value._filename)
 
             print()
 
