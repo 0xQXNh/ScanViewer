@@ -1,6 +1,7 @@
 # Scan Viewer
 
-.nmap file parser for easier reading of information
+Port scanner parser for easier reading of information.
+Supports: .gnmap, .nmap, .nessus, .naabu
 
 # Commands
 - `load {filename}` To load an .nmap file into the session

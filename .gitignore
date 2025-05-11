@@ -1,3 +1,4 @@
 *.svs
+*.config
 /files
 /modules/__pycache__

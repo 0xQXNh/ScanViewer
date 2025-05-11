@@ -13,6 +13,7 @@ class finding:
     _file: str = ""
 
     def __init__(self):
+        self._id = 0
         self._ip = ""
         self._port = -1
         self._service = ""

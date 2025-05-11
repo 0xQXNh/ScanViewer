@@ -71,7 +71,7 @@ class parser:
 
             for _line in range(len(_input)):
                 if posCount < len(locs)-1 and _line >= locs[posCount+1] or _input[_line] == "":
-                    _findings._values.append(_finding)
+                    _findings._addFinding(_finding)
                     _finding = finding()
                     _finding._id = len(_findings._values)
                     posCount += 1
@@ -118,12 +118,13 @@ class parser:
                 
                 _finding = finding()
 
+                _finding._id = len(_findings._values)
                 _finding._ip = line[0]
                 _finding.setPort(line[1])
 
                 _finding._filename = filename
 
-                _findings._values.append(_finding)
+                _findings._addFinding(_finding)
 
         elif extension == "gnmap":
             for line in _input:
@@ -139,6 +140,7 @@ class parser:
                     for entry in line:
                         _finding = finding()
                         _finding._ip = ip
+                        _finding._id = len(_findings._values)
                         _finding._filename = filename
                         dataPos: int = 0
                         for data in entry.split("/"):
@@ -157,7 +159,7 @@ class parser:
 
                             dataPos += 1
 
-                        _findings._values.append(_finding)
+                        _findings._addFinding(_finding)
                                     
         elif extension == "xml": # I don't want to do this tbh
             pass
@@ -183,6 +185,8 @@ class parser:
                         _finding = finding()
 
                         _finding._ip = ip
+                        _finding._id = len(_findings._values)
+                        
                         _finding._service = data['svc_name'] if data['svc_name'] != "unknown" else ""
                         _finding._protocol = data['protocol']
                         _finding.setPort(data['port'])
@@ -190,6 +194,6 @@ class parser:
 
                         _finding._filename = filename
 
-                        _findings._values.append(_finding)
+                        _findings._addFinding(_finding)
 
         return _findings

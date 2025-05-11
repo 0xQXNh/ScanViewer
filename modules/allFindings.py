@@ -12,6 +12,7 @@ else:
     CLEAR_COMMAND = "clear"
 
 class allFindings:
+    _AllValues: list = []
     _values: list = []
     _loadedId: int = -1
     _loadedSessionName: str = "_"
@@ -21,6 +22,74 @@ class allFindings:
 
     def __init__(self) -> None:
         self._values = []
+
+        if os.path.exists("scanViewer.config"):
+            with open("scanViewer.config", "r") as f:
+                for line in f.readlines():
+                    line = line.rstrip()
+                    setting = line.split(":")[0].lower()
+                    value = line.split(":")[-1].lower()
+
+                    match setting:
+                        case "_debug":
+                            self._debug = True if value == "true" else False
+
+                        case "_comments":
+                            self._comments = True if value == "true" else False
+
+                        case "_lastsession":
+                            self._import(int(value))
+
+    def _addFinding(self, data: finding) -> None:
+        for finding in self._values:
+            if data._ip == finding._ip and data._port == finding._port:
+                
+                os.system(CLEAR_COMMAND)
+
+                print(f"{'IP:':<10} {data._ip:<30}{finding._ip}")
+                print(f"{'Port:':<10} {data._port:<30}{finding._port}")
+                print(f"{'Service:':<10} {data._service:<30}{finding._service}")
+                print(f"{'Filename:':<10} {data._filename:<30}{finding._filename}")
+                print(f"{'Datetime:':<10} {str(data._datetime):<30}{str(finding._datetime)}")
+
+                inp = input("Finding already exists. Overwrite finding? [(y)es/(N)o] >").lower()
+
+                if inp == "y":
+                    self._removeId(finding._id)
+
+                elif inp == "n" or inp == "":
+                    return
+
+                else:
+                    print("Invalid option.")
+                    return
+        
+        self._values.append(data)
+        self._AllValues.append(data)
+
+    def _updateConfig(self, setting: str, value: bool) -> None:
+        if not os.path.exists("scanViewer.config"):
+            open("scanViewer.config", "w")
+
+        configLines = []
+        with open("scanViewer.config", "r") as f:
+            for line in f.readlines():
+                configLines.append(line.rstrip())
+
+        found = False
+        for _line in range(len(configLines)):
+            line = configLines[_line]
+            if setting in line:
+                configLines[_line] = f"{setting}:{value}"
+                found = True
+
+        if not found:
+            configLines.append(f"{setting}:{value}")
+
+        with open("scanViewer.config", "w") as f:
+            for line in configLines:
+                f.write(line)
+                f.write("\n")
 
     def _getLoadedIps(self) -> str:
         ips: dict = {}
@@ -108,7 +177,7 @@ class allFindings:
 
         print(f"Written {_id}: {_sessionName} to config")
 
-    def _import(self) -> None:
+    def _import(self, id: int = -1) -> None:
         if not "config.svs" in os.listdir():
             print("No config file exists. A session must be exported first")
             return
@@ -116,6 +185,34 @@ class allFindings:
         with open("config.svs", "r") as f:
             lines = f.readlines()
             _id = len(lines) - 1
+
+            if id != -1:
+                entries = lines[id].split(":")[1] # get the base64 part of the line
+                entries = json.loads(base64.b64decode(entries.encode("ascii"))) # Convert back into json
+
+                for entry in entries:
+                    _finding = finding()
+                    _finding._id = entry['id']
+                    _finding._ip = entry['ip']
+                    _finding.setPort(entry['port'])
+                    _finding._service = entry['service']
+                    _finding._description = entry['description']
+                    _finding._datetime = entry['datetime']
+                    _finding._filename = entry['filename']
+                        
+                    for section in entry['comments']:
+                        _finding._comments.append(section)
+
+                    self._values.append(_finding)
+
+                self._AllValues = self._values
+                self._loadedId = id
+
+                _name = lines[id].split(":")[0].split(",")[-1][:-1]
+                self._loadedSessionName = _name
+
+                print(f"Loaded {_id}{": '" + _name + "'" if _name != "_" else ""} from config with {self._getLoadedIps()} ips")
+                return
 
             sessions = {}
 
@@ -186,6 +283,8 @@ class allFindings:
                     _finding._comments.append(section)
 
                 self._values.append(_finding)
+
+            self._AllValues = self._values
 
     def _delete(self) -> None:
         lines = []
@@ -258,6 +357,7 @@ class allFindings:
 
     def _clear(self) -> None:
         self._values = []
+        self._AllValues = []
         self._loadedId = -1
         self._loadedSessionName = "_"
 
@@ -265,6 +365,15 @@ class allFindings:
         self._values = sorted(self._values, key=operator.attrgetter('_port'))
         self._values = sorted(self._values, key=operator.attrgetter('_ip'))
 
+    def _removeId(self, id: int) -> None:
+        tempFindings = []
+        for finding in range(len(self._values)):
+            if self._values[finding]._id != id:
+                tempFindings.append(self._values[finding])
+            else:
+                print(f"Removed {self._values[finding]._id}")
+        self._values = tempFindings
+        
     def showAll(self) -> None:
         if len(self._values) == 0:
             print("No values to display")
@@ -282,12 +391,13 @@ class allFindings:
             if self._comments:
                 if type(value._comments) is str:
                     print(f"\t{value._comments}")
+
                 else:
                     for entry in value._comments:
                         print(f"\t{entry}")
 
             if self._debug:
-                print("\t" + str(value._datetime), value._filename)
+                print("\t" + str(value._id), str(value._datetime), value._filename)
 
             print()
 
@@ -315,7 +425,7 @@ class allFindings:
         for ip in ips.keys():
             print(ip)
 
-    def search(self) -> None:
+    def search(self, search_value: str = "ip") -> None:
         _searching: bool = True
         ipMap: dict = {}
         searchTerm: str = ""
@@ -324,10 +434,10 @@ class allFindings:
         for pos in range(len(self._values)):
             if not self._values[pos]._ip in ipMap.keys():
                 ipMap[self._values[pos]._ip] = []
-                ipMap[self._values[pos]._ip].append(pos)
+                ipMap[self._values[pos]._ip].append(self._values[pos])
 
             else:
-                ipMap[self._values[pos]._ip].append(pos)
+                ipMap[self._values[pos]._ip].append(self._values[pos])
 
         os.system(CLEAR_COMMAND)
         while _searching:
@@ -337,11 +447,10 @@ class allFindings:
             except:
                 pass
 
-            print(repr(char))
-
             match char:
                 case ("\x03" | "\r" | "\n"):
                     _searching = False
+                    self._values = valuesInScope
                     break
 
                 case ("\x08" | "\x7f"):
@@ -350,14 +459,32 @@ class allFindings:
                 case _:
                     searchTerm += char
 
+            valuesInScope = []
             for ipKey in ipMap.keys():
-                if searchTerm == "":
-                    print(ipKey)
+                for entry in ipMap[ipKey]:
+                    if searchTerm == "":
+                        valuesInScope.append(entry)
                 
-                elif searchTerm in ipKey:
-                    print(ipKey)
+                    elif searchTerm in entry._ip and search_value == "ip":
+                        valuesInScope.append(entry)
 
-            print(f"[Search by ip] > {searchTerm}")
+                    elif searchTerm in str(entry._port) and search_value == "port":
+                        valuesInScope.append(entry)
+            
+                    elif searchTerm in entry._service and search_value == "service":
+                        valuesInScope.append(entry)
+            
+            for value in valuesInScope:
+                if search_value == "port":
+                    print(value._ip, value._port)
+
+                elif search_value == "service":
+                    print(value._ip, value._service)
+                
+                else:
+                    print(value._ip)    
+
+            print(f"[Search by {search_value}] > {searchTerm}")
 
             char = msvcrt.getch()
             os.system(CLEAR_COMMAND)

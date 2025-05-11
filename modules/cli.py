@@ -57,6 +57,7 @@ class cli:
                         os.system(CLEAR_COMMAND)
 
                     case ("exit" | "quit"):
+                        self._findings._updateConfig("_lastsession", self._findings._loadedId)
                         exit()
 
                     case ("new"):
@@ -103,16 +104,42 @@ class cli:
                         else:
                             self._findings.showAll()
 
-                    case ("no-comments"):
+                    case ("comments"):
                         self._findings._comments = not self._findings._comments
                         print(f"Comments are {'on' if self._findings._comments else 'off'}")
+
+                        self._findings._updateConfig("_comments", self._findings._comments)
 
                     case ("debug"):
                         self._findings._debug = not self._findings._debug
                         print(f"Debug is {'on' if self._findings._debug else 'off'}")
 
-                    case ("search"):
-                        self._findings.search()
+                        self._findings._updateConfig("_debug", self._findings._debug)
 
+                    case "clear-search":
+                        self._findings._values = self._findings._AllValues
+
+                    case ("settings"):
+                        print("Comments:", self._findings._comments)
+                        print("Debug:", self._findings._debug)
+
+                    case ("search"):
+                        if len(command.split()) > 1:
+                            match command.split()[1].lower():
+                                case "ip":
+                                    self._findings.search("ip")
+
+                                case "port":
+                                    self._findings.search("port")
+
+                                case "service":
+                                    self._findings.search("service")
+
+                                case _:
+                                    print(f"{command.split()[1].lower()} is not a valid option")
+
+                        else:
+                            self._findings.search("ip")
+                    
                     case _:
                         print(f"{command.rstrip()} is not a command")
